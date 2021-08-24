@@ -1,13 +1,23 @@
 package main
 
+import (
+	"fmt"
+	"ztalloc/pkg/core"
+)
 
-import  "ztalloc/pkg/core" 
+func main() {
+	depth := uint8(24)
 
-func main(){
-	v := func(a core.Node) { println(a.ToString())}
-	traverse := core.DfoGen(core.PREORDER,v)
+	visitedCount := 0
+	v := func(a core.Node, parent core.Node, d uint8) {
+		visitedCount++;
+		s := fmt.Sprintf("%8d %3d: %31d <--- %d", visitedCount, depth-d, a.V, parent.V)
+		println(s)
 
-	a := core.NodeFromInt(16)
-	traverse(a, 10)
+	}
+	traverse := core.DfoGen(core.PREORDER, v)
+
+	start := core.NodeFromInt(16)
+	traverse(start, depth)
 
 }

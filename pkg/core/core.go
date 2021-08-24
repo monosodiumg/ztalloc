@@ -7,32 +7,32 @@ import (
 //TODO : func (a Node) Parent() Node
 
 type Node struct {
-	n18, n54, v uint64
-	r18, r54    uint8
+	N18, N54, V uint64
+	R18, R54    uint8
 }
 
 func (a Node) ToString() string {
-	return fmt.Sprintf("%d = 18*%d+%d = 54*%d+%d", a.v, a.n18, a.r18, a.n54, a.r54)
+	return fmt.Sprintf("%d = 18*%d+%d = 54*%d+%d", a.V, a.N18, a.R18, a.N54, a.R54)
 }
 
 func NodeFromInt(v uint64) Node {
 	//TODO: error if not fecund value
 	var z Node
-	z.v = v
-	z.n18 = v / 18
-	z.r18 = uint8(v % 18)
-	z.n54 = v / 54
-	z.r54 = uint8(v % 54)
+	z.V = v
+	z.N18 = v / 18
+	z.R18 = uint8(v % 18)
+	z.N54 = v / 54
+	z.R54 = uint8(v % 54)
 	return z
 }
 
 func (a Node) TwoChild() Node {
-	c := Two(a.v)
+	c := Two(a.V)
 	return NodeFromInt(c)
 }
 
 func (a Node) ThreeChild() Node {
-	c := Three(a.v)
+	c := Three(a.V)
 	return NodeFromInt(c)
 }
 
@@ -80,30 +80,49 @@ const (
 	POSTORDER
 )
 
-type Visitor = func(Node)
+type Visitor = func(Node, Node, uint8)
 type NodeGen = func(Node) Node
-type DFTraverser = func(Node, int8)
+type _DFTraverser = func(Node, Node, uint8)
+type DFTraverser = func(Node, uint8)
 type DFTraverserGen = func(NodeGen) DFTraverser
 
 func DfoGen(order TraversalOrder, v Visitor) DFTraverser {
-	three := Node.ThreeChild
-	two := Node.TwoChild
-
-	var trav DFTraverser
-	switch order {
-	case PREORDER:
-		trav = func(a Node, d int8) {
-			v(a)
-			if d > 0 {
-				trav(three(a), d-1)
-			}
-			if d > 0 {
-				trav(two(a), d-1)
-			}
+	var trav _DFTraverser
+	three := func(a Node, d uint8) {
+		if d > 0 {
+			trav(a.ThreeChild(), a, d -1)
 		}
-
+	}
+	two := func(a Node, d uint8) {
+		if d > 0 {
+			trav(a.TwoChild(), a, d -1)
+		}
 	}
 
-	return trav
-}
+	switch order {
+	case PREORDER:
+		trav = func(a Node, parent Node, d uint8) {
+			v(a, parent, d)
+			three(a, d)
+			two(a, d)
+		}
+	case INORDER:
+		trav = func(a Node, parent Node, d uint8) {
+			three(a, d-1)
+			v(a, parent, d)
+			two(a, d-1)
+		}
+	case POSTORDER:
+		trav = func(a Node, parent Node, d uint8) {
+			three(a, d-1)
+			two(a, d-1)
+			v(a, parent, d)
 
+		}
+	}
+
+	return func(a Node, d uint8) {
+		var zero Node
+		trav(a, zero, d)
+	}
+}
