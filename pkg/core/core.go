@@ -1,20 +1,23 @@
 package core
 
-/*
-Fecund values are those that can be expressed n*18+4 and n*18+16 for integer n.
-*/
-
 import (
 	"fmt"
 )
 
-type Fecund_node struct {
+//TODO : func (a Node) Parent() Node
+
+type Node struct {
 	n18, n54, v uint64
 	r18, r54    uint8
 }
 
-func NodeFromInt(v uint64) Fecund_node {
-	var z Fecund_node
+func (a Node) ToString() string {
+	return fmt.Sprintf("%d = 18*%d+%d = 54*%d+%d", a.v, a.n18, a.r18, a.n54, a.r54)
+}
+
+func NodeFromInt(v uint64) Node {
+	//TODO: error if not fecund value
+	var z Node
 	z.v = v
 	z.n18 = v / 18
 	z.r18 = uint8(v % 18)
@@ -23,7 +26,17 @@ func NodeFromInt(v uint64) Fecund_node {
 	return z
 }
 
-func ThreeChild(n uint64) uint64 {
+func (a Node) TwoChild() Node {
+	c := Two(a.v)
+	return NodeFromInt(c)
+}
+
+func (a Node) ThreeChild() Node {
+	c := Three(a.v)
+	return NodeFromInt(c)
+}
+
+func Three(n uint64) uint64 {
 	r54 := n % 54
 	var m uint64
 	switch r54 {
@@ -41,23 +54,56 @@ func ThreeChild(n uint64) uint64 {
 		m = 16
 	}
 	c := m * (n - 1) / 3
-
-	fmt.Println(c)
 	return c
 }
 
 // defined for fecund n
-func TwoChild(n uint64) uint64 {
-	var c uint64 = n * (n % 18)
+func Two(n uint64) uint64 {
+	var c = n * (n % 18)
 	return c
 }
 
-//
-//
-func GenerateNodesDF(start Fecund_node, depth int8, c chan Fecund_node) {
-	c <- start
+func (a Node) TraverseDepthFirst(depth int8, f func(*Node)) {
+	f(&a)
 	if depth > 0 {
-		GenerateNodesDF(NodeFromInt(ThreeChild(start.v)), depth-1, c)
-		GenerateNodesDF(NodeFromInt(TwoChild(start.v)), depth-1, c)
+		a.ThreeChild().TraverseDepthFirst(depth-1, f)
+		a.TwoChild().TraverseDepthFirst(depth-1, f)
 	}
 }
+
+//pre-order inorder post-order:
+type TraversalOrder int
+
+const (
+	PREORDER TraversalOrder = iota + 1
+	INORDER
+	POSTORDER
+)
+
+type Visitor = func(Node)
+type NodeGen = func(Node) Node
+type DFTraverser = func(Node, int8)
+type DFTraverserGen = func(NodeGen) DFTraverser
+
+func DfoGen(order TraversalOrder, v Visitor) DFTraverser {
+	three := Node.ThreeChild
+	two := Node.TwoChild
+
+	var trav DFTraverser
+	switch order {
+	case PREORDER:
+		trav = func(a Node, d int8) {
+			v(a)
+			if d > 0 {
+				trav(three(a), d-1)
+			}
+			if d > 0 {
+				trav(two(a), d-1)
+			}
+		}
+
+	}
+
+	return trav
+}
+

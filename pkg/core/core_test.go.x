@@ -5,7 +5,7 @@ import (
 )
 
 func TestNodeFromInt(t *testing.T) {
-	tests := []Fecund_node{{v: 4, n18: 0, r18: 4, n54: 0, r54: 4},
+	tests := []Node{{v: 4, n18: 0, r18: 4, n54: 0, r54: 4},
 		{v: 16, n18: 0, r18: 16, n54: 0, r54: 16},
 		{v: 22, n18: 1, r18: 4, n54: 0, r54: 22},
 		{v: 34, n18: 1, r18: 16, n54: 0, r54: 34},
@@ -25,7 +25,7 @@ func TestNodeFromInt(t *testing.T) {
 	}
 }
 
-func TestTwoChild(t *testing.T) {
+func TestTwo(t *testing.T) {
 
 	tests := []struct {
 		n uint64
@@ -38,7 +38,7 @@ func TestTwoChild(t *testing.T) {
 	}
 
 	for _, q := range tests {
-		r := TwoChild(q.n)
+		r := Two(q.n)
 		if r != q.c {
 			t.Errorf("TwoChild was incorrect, got: %d, want: %d.", q.n, q.c)
 		}
@@ -46,7 +46,7 @@ func TestTwoChild(t *testing.T) {
 
 }
 
-func TestThreeChild(t *testing.T) {
+func TestThree(t *testing.T) {
 
 	tests := []struct {
 		n uint64
@@ -62,29 +62,10 @@ func TestThreeChild(t *testing.T) {
 	}
 
 	for _, q := range tests {
-		r := ThreeChild(q.n)
+		r := Three(q.n)
 		if r != q.c {
 			t.Errorf("ThreeChild was incorrect, got: %d, want: %d.", q.n, q.c)
 		}
 	}
 
-}
-
-func TestGenerateNodesDF(t *testing.T) {
-	type args struct {
-		start Fecund_node
-		depth int8
-		c     chan Fecund_node
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			GenerateNodesDF(tt.args.start, tt.args.depth, tt.args.c)
-		})
-	}
 }
