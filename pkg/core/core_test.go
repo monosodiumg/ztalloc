@@ -1,8 +1,10 @@
 package core
 
-import "testing"
+import (
+	"testing"
+)
 
-func TestNode_from_value(t *testing.T) {
+func TestNodeFromInt(t *testing.T) {
 	tests := []Fecund_node{{v: 4, n18: 0, r18: 4, n54: 0, r54: 4},
 		{v: 16, n18: 0, r18: 16, n54: 0, r54: 16},
 		{v: 22, n18: 1, r18: 4, n54: 0, r54: 22},
@@ -16,9 +18,9 @@ func TestNode_from_value(t *testing.T) {
 		{v: 94, n18: 5, r18: 4, n54: 1, r54: 40},
 		{v: 106, n18: 5, r18: 16, n54: 1, r54: 52}}
 	for _, q := range tests {
-		r := Node_from_value(q.v)
+		r := NodeFromInt(q.v)
 		if r != q {
-			t.Errorf("Node_from_value was incorrect for value %d", q.v)
+			t.Errorf("NodeFromInt was incorrect for value %d", q.v)
 		}
 	}
 }
@@ -66,4 +68,23 @@ func TestThreeChild(t *testing.T) {
 		}
 	}
 
+}
+
+func TestGenerateNodesDF(t *testing.T) {
+	type args struct {
+		start Fecund_node
+		depth int8
+		c     chan Fecund_node
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			GenerateNodesDF(tt.args.start, tt.args.depth, tt.args.c)
+		})
+	}
 }

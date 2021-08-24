@@ -13,7 +13,7 @@ type Fecund_node struct {
 	r18, r54    uint8
 }
 
-func Node_from_value(v uint64) Fecund_node {
+func NodeFromInt(v uint64) Fecund_node {
 	var z Fecund_node
 	z.v = v
 	z.n18 = v / 18
@@ -21,14 +21,6 @@ func Node_from_value(v uint64) Fecund_node {
 	z.n54 = v / 54
 	z.r54 = uint8(v % 54)
 	return z
-}
-
-func ThreeChildNode(n Fecund_node) Fecund_node {
-	return Node_from_value(ThreeChild(n.v))
-}
-
-func TwoChildNode(n Fecund_node) Fecund_node {
-	return Node_from_value(TwoChild(n.v))
 }
 
 func ThreeChild(n uint64) uint64 {
@@ -65,7 +57,7 @@ func TwoChild(n uint64) uint64 {
 func GenerateNodesDF(start Fecund_node, depth int8, c chan Fecund_node) {
 	c <- start
 	if depth > 0 {
-		GenerateNodesDF(ThreeChildNode(start), depth-1, c)
-		GenerateNodesDF(TwoChildNode(start), depth-1, c)
+		GenerateNodesDF(NodeFromInt(ThreeChild(start.v)), depth-1, c)
+		GenerateNodesDF(NodeFromInt(TwoChild(start.v)), depth-1, c)
 	}
 }
