@@ -1,21 +1,30 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 )
 
 //TODO : func (a Node) Parent() Node
 
 type Node struct {
-	N18, N54, V uint64
+	N18, N54, V int
 	R18, R54    uint8
+}
+
+var _root = Node{
+	N18: 0,
+	N54: 0,
+	V:   4,
+	R18: 4,
+	R54: 4,
 }
 
 func (a Node) ToString() string {
 	return fmt.Sprintf("%d = 18*%d+%d = 54*%d+%d", a.V, a.N18, a.R18, a.N54, a.R54)
 }
 
-func NodeFromInt(v uint64) Node {
+func NodeFromInt(v int) Node {
 	//TODO: error if not fecund value
 	var z Node
 	z.V = v
@@ -36,9 +45,9 @@ func (a Node) ThreeChild() Node {
 	return NodeFromInt(c)
 }
 
-func Three(n uint64) uint64 {
+func Three(n int) int {
 	r54 := n % 54
-	var m uint64
+	var m int
 	switch r54 {
 	case 34:
 		m = 2
@@ -58,17 +67,9 @@ func Three(n uint64) uint64 {
 }
 
 // defined for fecund n
-func Two(n uint64) uint64 {
+func Two(n int) int {
 	var c = n * (n % 18)
 	return c
-}
-
-func (a Node) TraverseDepthFirst(depth int8, f func(*Node)) {
-	f(&a)
-	if depth > 0 {
-		a.ThreeChild().TraverseDepthFirst(depth-1, f)
-		a.TwoChild().TraverseDepthFirst(depth-1, f)
-	}
 }
 
 //pre-order inorder post-order:
@@ -80,31 +81,31 @@ const (
 	POSTORDER
 )
 
-type Visitor = func(Node, Node, uint8)
 type NodeGen = func(Node) Node
-type _DFTraverser = func(Node, Node, uint8)
-type DFTraverser = func(Node, uint8)
+type Visitor = func(Node, Node, uint8)
+type DFTraverser = func(int, uint8) error
+type _DFTraverser = func(Node, uint8)
 type DFTraverserGen = func(NodeGen) DFTraverser
 
+func guardedChildTraverserGen(g NodeGen, t *Visitor) _DFTraverser {
+	return func(a Node, d uint8) {
+		if d > 0 {
+			(*t)(g(a), a, d)
+		}
+	}
+}
+
 func DfoGen(order TraversalOrder, v Visitor) DFTraverser {
-	var trav _DFTraverser
-	three := func(a Node, d uint8) {
-		if d > 0 {
-			trav(a.ThreeChild(), a, d -1)
-		}
-	}
-	two := func(a Node, d uint8) {
-		if d > 0 {
-			trav(a.TwoChild(), a, d -1)
-		}
-	}
+	var trav Visitor
+	three := guardedChildTraverserGen(Node.ThreeChild, &trav)
+	two := guardedChildTraverserGen(Node.TwoChild, &trav)
 
 	switch order {
 	case PREORDER:
 		trav = func(a Node, parent Node, d uint8) {
 			v(a, parent, d)
-			three(a, d)
-			two(a, d)
+			three(a, d-1)
+			two(a, d-1)
 		}
 	case INORDER:
 		trav = func(a Node, parent Node, d uint8) {
@@ -117,12 +118,21 @@ func DfoGen(order TraversalOrder, v Visitor) DFTraverser {
 			three(a, d-1)
 			two(a, d-1)
 			v(a, parent, d)
-
 		}
 	}
 
-	return func(a Node, d uint8) {
+	return func(n int, d uint8) error {
+		r18 := n % 18
+		if r18 != 4 && r18 != 16 {
+			return errors.New("Not a fecund value. Must be congruent to 4 or 16 modulus 18")
+		}
+		if n <= 4 {
+			return errors.New("Start value must be at least 16")
+		}
+
+		a := NodeFromInt(n)
 		var zero Node
 		trav(a, zero, d)
+		return nil
 	}
 }

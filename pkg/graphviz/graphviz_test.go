@@ -5,11 +5,11 @@ import (
 )
 
 func TestGraphvizDraw(t *testing.T) {
-	src := make(chan uint64, 10)
+	src := make(chan int, 10)
 	dst := make(chan string, 10)
 
 	tests := []struct {
-		n uint64
+		n int
 		r string
 	}{
 		{4, "v4\n"},
@@ -37,7 +37,7 @@ func TestGraphvizDraw(t *testing.T) {
 }
 
 func TestGraphvizNodeRender(t *testing.T) {
-	var node uint64 = 4
+	var node int = 4
 	r := GraphvizNodeRender(node)
 	//fmt.Printf("TestGraphvizNodeRender::r=%s",r)
 	if r != "v4\n" {
