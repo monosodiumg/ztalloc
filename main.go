@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 
@@ -13,25 +14,6 @@ import (
 
 func main() {
 	zrender()
-}
-
-func runCore() error {
-	depth := uint8(2)
-
-	visitedCount := 0
-	v := func(a core.Node, parent core.Node, d uint8) {
-		visitedCount++
-		s := fmt.Sprintf("%8d %3d: %31d <--- %d", visitedCount, depth-d, a.V, parent.V)
-		println(s)
-
-	}
-	traverse := core.DfoGen(core.PREORDER, v)
-
-	//
-
-	start := int(106)
-	return traverse(start, depth)
-	// "ztalloc/core"
 }
 
 func zrender() {
