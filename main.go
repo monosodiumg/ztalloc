@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"ztalloc/core"
+	"ztalloc/ztalloc"
 	"ztalloc/render"
 
 	"github.com/goccy/go-graphviz"

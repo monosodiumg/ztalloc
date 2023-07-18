@@ -2,7 +2,7 @@ package render
 
 import (
 	"github.com/goccy/go-graphviz/cgraph"	
-	"ztalloc/core"
+	"ztalloc/ztalloc"
 	"fmt"
 )
 
