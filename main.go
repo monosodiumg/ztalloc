@@ -4,16 +4,15 @@ import (
 	"fmt"
 	"log"
 
-	"ztalloc/pkg/core"
-	"ztalloc/pkg/render"
-	"ztalloc/pkg/traversal"
+	"ztalloc/core"
+	"ztalloc/render"
 
 	"github.com/goccy/go-graphviz"
 	"github.com/goccy/go-graphviz/cgraph"
 )
 
 func main() {
-	render()
+	zrender()
 }
 
 func runCore() error {
@@ -35,7 +34,7 @@ func runCore() error {
 	// "ztalloc/core"
 }
 
-func render() {
+func zrender() {
 	g := graphviz.New()
 	graph, err := g.Graph(graphviz.StrictDirected)
 	if err != nil {

@@ -2,11 +2,11 @@ package render
 
 import (
 	"github.com/goccy/go-graphviz/cgraph"	
-	"ztalloc/core"
+	 "ztalloc/ztalloc"
 	"fmt"
 )
 
-func RenderNode(z core.Node, gnode *cgraph.Node)  {
+func RenderNode(z ztalloc.Node, gnode *cgraph.Node)  {
 	label := fmt.Sprintf("%d(%d)",z.Value(), z.Value() % 54)
 	gnode.SetLabel(label)
 	gnode.SetColorScheme("oranges9")
@@ -44,22 +44,22 @@ func RenderNode(z core.Node, gnode *cgraph.Node)  {
 	gnode.SetFontColor(fontc)
 }
 
-func RenderEdge(t core.TransformName, gedge *cgraph.Edge)  {
+func RenderEdge(t ztalloc.TransformName, gedge *cgraph.Edge)  {
 	gedge.SetLabel(t)
 	gedge.SetColorScheme("piyg7")
 	// gedge.Set(cgraph.VeeArrow)
 
 	var fontc string
 	switch t {
-	case core.E22:
+	case ztalloc.E22:
 		fontc = "1"
-	case core.E2222:
+	case ztalloc.E2222:
 		fontc = "2"
-	case core.E32:
+	case ztalloc.E32:
 		fontc = "3"
-	case core.E322:
+	case ztalloc.E322:
 		fontc = "4"
-	case core.E3222:
+	case ztalloc.E3222:
 		fontc = "5"
 	default: //not expected
 		gedge.SetColorScheme("")
