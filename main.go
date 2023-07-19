@@ -5,14 +5,27 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"ztalloc/ztalloc"
 	"ztalloc/render"
+	"ztalloc/ztalloc"
 
 	"github.com/goccy/go-graphviz"
 	"github.com/goccy/go-graphviz/cgraph"
 )
 
 func main() {
+	// n.SetStyle()()
+	// n.SetStyle()()
+	// e.SetLabel(ztalloc.E22)
+	// 	image, err := g.RenderImage(graph)
+	// if err != nil {
+	//   log.Fatal(err)
+	// }
+	// 3. write to file directly
+	// renderGraphvizOld()
+
+}
+
+func renderGraphvizOld() {
 	g := graphviz.New()
 	graph, err := g.Graph(graphviz.StrictDirected)
 	if err != nil {
@@ -27,7 +40,8 @@ func main() {
 	graph.SetStyle(cgraph.RoundedGraphStyle)
 
 	ga, err := graph.CreateNode("a")
-	// n.SetStyle()()
+	ga.N
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -35,7 +49,7 @@ func main() {
 	render.RenderNode(za, ga)
 
 	gb, err := graph.CreateNode("b")
-	// n.SetStyle()()
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,22 +61,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// e.SetLabel(ztalloc.E22)
-	render.RenderEdge(ztalloc.E22, gab)
-	var buf bytes.Buffer
-	if err := g.Render(graph, "dot", &buf); err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(buf.String())
+// 	render.RenderEdge(ztalloc.Z22, gab)
+// 	var buf bytes.Buffer
+// 	if err := g.Render(graph, "dot", &buf); err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	fmt.Println(buf.String())
 
-	// 	image, err := g.RenderImage(graph)
-	// if err != nil {
-	//   log.Fatal(err)
-	// }
-
-	// 3. write to file directly
-	if err := g.RenderFilename(graph, graphviz.PNG, "./graph.png"); err != nil {
-		log.Fatal(err)
-	}
-
-}
+// 	if err := g.RenderFilename(graph, graphviz.PNG, "./graph.png"); err != nil {
+// 		log.Fatal(err)
+// 	}
+// }

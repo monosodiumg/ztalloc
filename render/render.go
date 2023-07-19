@@ -1,23 +1,22 @@
 package render
 
 import (
-	"github.com/goccy/go-graphviz/cgraph"	
-	"ztalloc/ztalloc"
 	"fmt"
+	"ztalloc/ztalloc"
+
+	"github.com/goccy/go-graphviz/cgraph"
 )
 
-type (
+type ()
 
-)
-
-func RenderNode(z ztalloc.Node, gnode *cgraph.Node)  {
-	label := fmt.Sprintf("%d(%d)",z.Value(), z.Value() % 54)
+func RenderNode(z ztalloc.Node, gnode *cgraph.Node) {
+	label := fmt.Sprintf("%d(%d)", z.Value(), z.Value()%54)
 	gnode.SetLabel(label)
 	gnode.SetColorScheme("oranges9")
 	gnode.SetStyle(cgraph.FilledNodeStyle)
 	gnode.SetShape(cgraph.OvalShape)
 
-	var fillc,fontc string
+	var fillc, fontc string
 	switch z.Value() % 54 {
 	case 4:
 		fillc = "2"
@@ -43,27 +42,27 @@ func RenderNode(z ztalloc.Node, gnode *cgraph.Node)  {
 		fillc = "firebrick"
 		fontc = "white"
 	}
-	
+
 	gnode.SetFillColor(fillc)
 	gnode.SetFontColor(fontc)
 }
 
-func RenderEdge(t ztalloc.TransformName, gedge *cgraph.Edge)  {
+func RenderEdge(t ztalloc.TransformName, gedge *cgraph.Edge) {
 	gedge.SetLabel(t)
 	gedge.SetColorScheme("piyg7")
 	// gedge.Set(cgraph.VeeArrow)
 
 	var fontc string
 	switch t {
-	case ztalloc.E22:
+	case ztalloc.Z22:
 		fontc = "1"
-	case ztalloc.E2222:
+	case ztalloc.Z2222:
 		fontc = "2"
-	case ztalloc.E32:
+	case ztalloc.Z32:
 		fontc = "3"
-	case ztalloc.E322:
+	case ztalloc.Z322:
 		fontc = "4"
-	case ztalloc.E3222:
+	case ztalloc.Z3222:
 		fontc = "5"
 	default: //not expected
 		gedge.SetColorScheme("")
