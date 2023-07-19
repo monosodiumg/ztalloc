@@ -31,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	za, _ := core.Get(5400000000004)
+	za, _ := ztalloc.Get(5400000000004)
 	render.RenderNode(za, ga)
 
 	gb, err := graph.CreateNode("b")
@@ -39,7 +39,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	zb, _ := core.Get(58)
+	zb, _ := ztalloc.Get(58)
 	render.RenderNode(zb, gb)
 
 	gab, err := graph.CreateEdge("e", ga, gb)
@@ -47,8 +47,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// e.SetLabel(core.E22)
-	render.RenderEdge(core.E22, gab)
+	// e.SetLabel(ztalloc.E22)
+	render.RenderEdge(ztalloc.E22, gab)
 	var buf bytes.Buffer
 	if err := g.Render(graph, "dot", &buf); err != nil {
 		log.Fatal(err)

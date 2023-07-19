@@ -1,4 +1,4 @@
-package core
+package ztalloc
 
 import "fmt"
 
@@ -9,9 +9,11 @@ type (
 		RightChild() (Node, error)
 		Value() int
 	}
-	node     int
+	node          int
 	TransformName = string
-	Transform = func(int) int
+	Transform     = func(int) int
+
+
 )
 
 const (
@@ -39,13 +41,20 @@ func GetTransformType(a, b int) (string, error) {
 }
 
 func Get(n int) (Node, error) {
-	return node(n), nil
+	switch n % 54 {
+	case 4, 16, 22, 28, 34, 40, 52:
+		return node(n), nil
+	default:
+		return nil, fmt.Errorf("Cannot create Node from illegal value %d.", n)
+	}
 }
 
 func (n node) Parent() (Node, error) {
+
 	return nil, fmt.Errorf("Not implemented")
 }
 
+// LeftChild is the 
 func (n node) LeftChild() (Node, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
