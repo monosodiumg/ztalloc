@@ -10,8 +10,8 @@ type (
 		RightChild() (Node, TransformName, error) // first step is a 2
 		Value() int
 	}
-	znode int
-	cnode int
+	ZNode int
+	CNode int
 
 	TransformName = string
 	Transform     = func(int) int
@@ -52,63 +52,41 @@ var Z54Transforms = map[TransformName]Transform{
 	Z3222: func(n int) int { return (n - 1) / 3 * 8 },
 }
 
-func NewZTree(root int) znode {
-	return znode(root)
-}
-
-func GetTransformType(a, b int) (string, error) {
-	return "", fmt.Errorf("Not implemented")
-}
-
-// func Get(n int) (Node, error) {
-// 	switch n % 54 {
-// 	case 4, 16, 22, 28, 34, 40, 52:
-// 		return node(n), nil
-// 	default:
-// 		return nil, fmt.Errorf("Cannot create Node from illegal value %d.", n)
-// 	}
-// }
-
-func (n znode) Parent() (znode, error) {
-	return 0, fmt.Errorf("Not implemented")
-}
-
-// LeftChild is the
-func (n znode) LeftChild() (znode, error) {
-	return 2 * n, nil
-}
-
-func (n znode) RightChild() (znode, error) {
-	if n%3 != 1 {
-		return n, fmt.Errorf("znode %d has no RightChild", n)
-	}
-	return (n - 1) / 3, nil
-}
-
-func (n znode) Value() int {
-	return int(n)
-}
-
-// func (n cnode) Parent() (Node, error) {
-// 	return nil, fmt.Errorf("Not implemented")
+// func NewZNode(v int) ZNode {
+// 	return ZNode(v)
 // }
 
 // LeftChild is the
-func (n cnode) LeftChild() (Node, TransformName, error) {
-	if n%2 != 1 {
-		return nil, C2, fmt.Errorf("cnode ")
-	}
-	return 2 * n, C2, nil
+func (n ZNode) LeftChild() (ZNode, TransformName, error) {
+	return 2 * n, Z2, nil
 }
 
-func (n cnode) RightChild() (Node, TransformName, error) {
-	if n%3 != 1 {
-		return n, C3, fmt.Errorf("cnode %d has no RightChild", n)
+func (n ZNode) RightChild() (ZNode, TransformName, error) {
+	if n%3 != 1 || n < 4 {
+		return ZNode(0), Z3, fmt.Errorf("ZNode %d has no RightChild", n)
 	}
-	return (n - 1) / 3, C3, nil
+	return (n - 1) / 3, Z3, nil
 }
 
-func (n cnode) Value() int {
+func (n ZNode) Value() int {
 	return int(n)
 }
 
+// LeftChild is the
+func (n CNode) LeftChild() (Node, TransformName, error) {
+	if n%2 != 0 || n < 2 {
+		return nil, C2, fmt.Errorf("CNode %d has no LeftChild", n)
+	}
+	return n / 2, C2, nil
+}
+
+func (n CNode) RightChild() (Node, TransformName, error) {
+	if n%2 != 1 || n < 0 {
+		return nil, C3, fmt.Errorf("CNode %d has no RightChild", n)
+	}
+	return 3*n + 1, C3, nil
+}
+
+func (n CNode) Value() int {
+	return int(n)
+}
