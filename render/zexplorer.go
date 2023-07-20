@@ -10,9 +10,10 @@ import (
 
 type (
 	TreeGraph struct {
-		start ztalloc.Node
-		g     *graphviz.Graphviz
-		graph *cgraph.Graph
+		start    ztalloc.Node
+		renderer TreeRenderer
+		graph    *cgraph.Graph
+		depth    int
 	}
 	chirality int
 )
@@ -22,34 +23,39 @@ const (
 	right
 )
 
-func NewTreeGraph(root ztalloc.Transform) (TreeGraph, error) {
-	g := graphviz.New()
-	graph, err := g.Graph(graphviz.StrictDirected)
+func NewTreeGraph(gv *graphviz.Graphviz, renderer TreeRenderer, start ztalloc.Node, depth int) (TreeGraph, error) {
+	if depth < 0 {
+		return TreeGraph{}, fmt.Errorf("Illegal depth %d. Must be non-negative", depth)
+	}
+	graph, err := gv.Graph(graphviz.StrictDirected)
 	if err != nil {
-		return TreeGraph{}, err
+		return TreeGraph{}, fmt.Errorf("Error creating TreeGraph: %w", err)
 	}
 	return TreeGraph{
-		g:     g,
-		graph: graph,
+		start:    start,
+		renderer: renderer,
+		graph:    graph,
+		depth:    depth,
 	}, nil
 }
+
+func (t TreeGraph) Graph() *cgraph.Graph { return t.graph }
 
 func (t TreeGraph) Close() error {
 	if err := t.graph.Close(); err != nil {
 		return err
 	}
-	t.g.Close()
 	return nil
 }
 
-func (g TreeGraph) Draw() error {
-	gRoot, err := g.drawNode(g.start)
+func (t TreeGraph) Draw() error {
+	gRoot, err := t.drawNode(t.start)
 	if err != nil {
-		return fmt.Errorf("Error drawing root %d: %w", g.start.Value(), err)
+		return fmt.Errorf("Error drawing root %d: %w", t.start.Value(), err)
 	}
-	err = g.drawChildren(g.start, gRoot, 5)
+	err = t.drawChildren(t.start, gRoot, t.depth)
 	if err != nil {
-		return fmt.Errorf("Error drawing tree rooted at %d: %w", g.start.Value(), err)
+		return fmt.Errorf("Error drawing tree rooted at %d: %w", t.start.Value(), err)
 	}
 	return nil
 }
@@ -64,35 +70,40 @@ func (g TreeGraph) drawChildren(dNode ztalloc.Node, gNode *cgraph.Node, depth in
 
 	if depth > 1 {
 		// iterate over children
-		if lerr == nil {
+		if lerr == nil && lgNode!= nil {
 			lerr = g.drawChildren(ldNode, lgNode, depth-1)
 		}
-		if rerr == nil {
+		if rerr == nil && rgNode!= nil{
 			rerr = g.drawChildren(rdNode, rgNode, depth-1)
 		}
 	}
-	if lerr != nil || rerr != nil {
-		return fmt.Errorf("Error drawing descendents of %d: left: %w, right: %w", dNode.Value(), lerr, rerr)
+	if lerr != nil {
+		return fmt.Errorf("Error drawing left descendents of %d: %w", dNode.Value(), lerr)
 	}
+	if rerr != nil {
+		return fmt.Errorf("Error drawing right descendents of %d: %w", dNode.Value(), rerr)
+	}
+
 	return nil
 }
 
+// Add a node and an edge to the graph, representing the child and the parent-child respectively. The returned child data and graph nodes will be nil if the child cannot be produced.
 func (g TreeGraph) drawChild(dParent ztalloc.Node, gParent *cgraph.Node, child chirality) (ztalloc.Node, *cgraph.Node, error) {
 	var dChild ztalloc.Node
 	// var dEdge ztalloc.TransformName
 	var suffix string
-	var err error
+	var ok bool
 	var dEdge ztalloc.TransformName
 
 	if child == left {
-		dChild, dEdge, err = dParent.LeftChild()
+		dChild, dEdge, ok = dParent.LeftChild()
 		suffix = "l"
 	} else {
-		dChild, dEdge, err = dParent.RightChild()
+		dChild, dEdge, ok = dParent.RightChild()
 		suffix = "r"
 	}
-	if err != nil {
-		return nil, nil, fmt.Errorf("Failed to draw %s child of %d: %w", suffix, dParent.Value(), err)
+	if !ok {
+		return nil, nil, nil
 	}
 
 	gChild, err := g.drawNode(dChild)
@@ -101,10 +112,10 @@ func (g TreeGraph) drawChild(dParent ztalloc.Node, gParent *cgraph.Node, child c
 	}
 	gEdge, err := g.graph.CreateEdge(gChild.Name(), gParent, gChild)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Failed to draw %s child of %d: %w", suffix, dParent.Value(), err)
+		return nil, nil, nil
 	}
 
-	RenderEdge(dEdge, gEdge)
+	g.renderer.RenderEdge(dEdge, gEdge)
 	return dChild, gChild, nil
 }
 
@@ -114,6 +125,6 @@ func (g TreeGraph) drawNode(dNode ztalloc.Node) (*cgraph.Node, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to draw node %d: %w", dNode.Value(), err)
 	}
-	RenderNode(dNode, gNode)
+	g.renderer.RenderNode(dNode, gNode)
 	return gNode, nil
 }

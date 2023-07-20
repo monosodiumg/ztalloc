@@ -17,47 +17,46 @@ func TestNewZTree(t *testing.T) {
 
 func TestZNode_LeftChild(t *testing.T) {
 	tests := []struct {
-		name    string
-		n       ZNode
-		want    ZNode
-		want1   TransformName
-		wantErr bool
+		name          string
+		n             ZNode
+		wantNode      ZNode
+		wantTransform TransformName
+		wantOk        bool
 	}{
 		{
-			name:    "zero",
-			n:       0,
-			want:    0,
-			want1:   Z2,
-			wantErr: false,
+			name:          "zero",
+			n:             0,
+			wantNode:      0,
+			wantTransform: Z2,
+			wantOk:        false,
 		},
 		{
-			name:    "one",
-			n:       1,
-			want:    2,
-			want1:   Z2,
-			wantErr: false,
+			name:          "one",
+			n:             1,
+			wantNode:      0,
+			wantTransform: Z2,
+			wantOk:        false,
 		},
 		{
-			name:    "sixteen",
-			n:       16,
-			want:    32,
-			want1:   Z2,
-			wantErr: false,
+			name:          "sixteen",
+			n:             16,
+			wantNode:      32,
+			wantTransform: Z2,
+			wantOk:        true,
 		},
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1, err := tt.n.LeftChild()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ZNode.LeftChild() error = %v, wantErr %v", err, tt.wantErr)
+			gotNode, gotTransform, gotOk := tt.n.LeftChild()
+			if gotOk != tt.wantOk {
+				t.Errorf("ZNode.LeftChild()want = %v, wantErr %v", gotOk, tt.wantOk)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("ZNode.LeftChild() = %v, want %v", got, tt.want)
+			if !reflect.DeepEqual(gotNode, tt.wantNode) {
+				t.Errorf("ZNode.LeftChild() got = %v, want %v", gotNode, tt.wantNode)
 			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("ZNode.LeftChild() got1 = %v, want %v", got1, tt.want1)
+			if !reflect.DeepEqual(gotTransform, tt.wantTransform) {
+				t.Errorf("ZNode.LeftChild() got1 = %v, want %v", gotTransform, tt.wantTransform)
 			}
 		})
 	}
@@ -65,69 +64,82 @@ func TestZNode_LeftChild(t *testing.T) {
 
 func TestZNode_RightChild(t *testing.T) {
 	tests := []struct {
-		name    string
-		n       ZNode
-		want    ZNode
-		want1   TransformName
-		wantErr bool
+		name          string
+		n             ZNode
+		wantNode      ZNode
+		wantTransform TransformName
+		wantOk        bool
 	}{
 		{
-			name:    "mod zero too small",
-			n:       3,
-			want:    0,
-			want1:   Z3,
-			wantErr: true,
+			name:          "mod zero too small",
+			n:             3,
+			wantNode:      0,
+			wantTransform: Z3,
+			wantOk:        false,
 		},
 		{
-			name:    "mod one too small",
-			n:       1,
-			want:    0,
-			want1:   Z3,
-			wantErr: true,
+			name:          "mod one too small",
+			n:             1,
+			wantNode:      0,
+			wantTransform: Z3,
+			wantOk:        false,
 		},
 		{
-			name:    "mode two too small",
-			n:       2,
-			want:    0,
-			want1:   Z3,
-			wantErr: true,
+			name:          "mode two too small",
+			n:             2,
+			wantNode:      0,
+			wantTransform: Z3,
+			wantOk:        false,
 		},
 		{
-			name:    "mod zero",
-			n:       6,
-			want:    0,
-			want1:   Z3,
-			wantErr: true,
+			name:          "mod zero",
+			n:             6,
+			wantNode:      0,
+			wantTransform: Z3,
+			wantOk:        false,
 		},
 		{
-			name:    "mod one",
-			n:       4,
-			want:    1,
-			want1:   Z3,
-			wantErr: false,
+			name:          "mod one",
+			n:             4,
+			wantNode:      1,
+			wantTransform: Z3,
+			wantOk:        true,
 		},
 		{
-			name:    "mode two",
-			n:       5,
-			want:    0,
-			want1:   Z3,
-			wantErr: true,
+			name:          "mod two",
+			n:             5,
+			wantNode:      0,
+			wantTransform: Z3,
+			wantOk:        false,
+		},
+		{
+			name:          "odd mod 1",
+			n:             7,
+			wantNode:      0,
+			wantTransform: Z3,
+			wantOk:        false,
+		},
+		{
+			name:          "even mod 1",
+			n:             10,
+			wantNode:      3,
+			wantTransform: Z3,
+			wantOk:        true,
 		},
 
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1, err := tt.n.RightChild()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ZNode.RightChild() error = %v, wantErr %v", err, tt.wantErr)
+			gotNode, gotTransform, gotOk := tt.n.RightChild()
+			if gotOk != tt.wantOk {
+				t.Errorf("ZNode.RightChild()want = %v, wantErr %v", gotOk, tt.wantOk)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("ZNode.RightChild() = %v, want %v", got, tt.want)
+			if !reflect.DeepEqual(gotNode, tt.wantNode) {
+				t.Errorf("ZNode.RightChild() got = %v, want %v", gotNode, tt.wantNode)
 			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("ZNode.RightChild() got1 = %v, want %v", got1, tt.want1)
+			if !reflect.DeepEqual(gotTransform, tt.wantTransform) {
+				t.Errorf("ZNode.RightChild() got1 = %v, want %v", gotTransform, tt.wantTransform)
 			}
 		})
 	}
@@ -148,7 +160,7 @@ func TestZNode_Value(t *testing.T) {
 			name: "13",
 			n:    13,
 			want: 13,
-		}, // TODO: Add test cases.
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -161,53 +173,46 @@ func TestZNode_Value(t *testing.T) {
 
 func TestCNode_LeftChild(t *testing.T) {
 	tests := []struct {
-		name    string
-		n       CNode
-		want    Node
-		want1   TransformName
-		wantErr bool
+		name          string
+		n             CNode
+		wantNode      Node
+		wantTransform TransformName
+		wantOk        bool
 	}{
 		{
-			name:    "zero",
-			n:       CNode(0),
-			want:    nil,
-			want1:   C2,
-			wantErr: true,
+			name:          "too small zero",
+			n:             CNode(0),
+			wantNode:      CNode(0),
+			wantTransform: C2,
+			wantOk:        false,
 		},
 		{
-			name:    "one",
-			n:       CNode(1),
-			want:    nil,
-			want1:   C2,
-			wantErr: true,
+			name:          "odd one",
+			n:             CNode(1),
+			wantNode:      CNode(0),
+			wantTransform: C2,
+			wantOk:        false,
 		},
 		{
-			name:    "two",
-			n:       CNode(2),
-			want:    CNode(1),
-			want1:   C2,
-			wantErr: false,
-		},
-		{
-			name:    "three",
-			n:       CNode(3),
-			want:    nil,
-			want1:   C2,
-			wantErr: true,
+			name:          "even two",
+			n:             CNode(2),
+			wantNode:      CNode(1),
+			wantTransform: C2,
+			wantOk:        true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1, err := tt.n.LeftChild()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("CNode.LeftChild() error = %v, wantErr %v", err, tt.wantErr)
+			gotNode, gotTransform, gotOk := tt.n.LeftChild()
+			if gotOk != tt.wantOk {
+				t.Errorf("CNode.LeftChild()want = %v, wantErr %v", gotOk, tt.wantOk)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("CNode.LeftChild() got = %v, want %v", got, tt.want)
+			if !reflect.DeepEqual(gotNode, tt.wantNode) {
+				t.Errorf("CNode.LeftChild() got = %v, want %v", gotNode, tt.wantNode)
 			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("CNode.LeftChild() got1 = %v, want %v", got1, tt.want1)
+			if !reflect.DeepEqual(gotTransform, tt.wantTransform) {
+				t.Errorf("CNode.LeftChild() got1 = %v, want %v", gotTransform, tt.wantTransform)
 			}
 		})
 	}
@@ -215,62 +220,60 @@ func TestCNode_LeftChild(t *testing.T) {
 
 func TestCNode_RightChild(t *testing.T) {
 	tests := []struct {
-		name    string
-		n       CNode
-		want    Node
-		want1   TransformName
-		wantErr bool
+		name          string
+		n             CNode
+		wantNode      Node
+		wantTransform TransformName
+		wantOk        bool
 	}{
 		{
-			name:    "zero",
-			n:       CNode(0),
-			want:    nil,
-			want1:   C3,
-			wantErr: true,
+			name:          "zero",
+			n:             CNode(0),
+			wantNode:      CNode(0),
+			wantTransform: C3,
+			wantOk:        false,
 		},
 		{
-			name:    "one",
-			n:       CNode(1),
-			want:    CNode(4),
-			want1:   C3,
-			wantErr: false,
+			name:          "one",
+			n:             CNode(1),
+			wantNode:      CNode(4),
+			wantTransform: C3,
+			wantOk:        true,
 		},
 		{
-			name:    "two",
-			n:       CNode(2),
-			want:    nil,
-			want1:   C3,
-			wantErr: true,
+			name:          "two",
+			n:             CNode(2),
+			wantNode:      CNode(0),
+			wantTransform: C3,
+			wantOk:        false,
 		},
 		{
-			name:    "three",
-			n:       CNode(3),
-			want:    CNode(10),
-			want1:   C3,
-			wantErr: false,
+			name:          "three",
+			n:             CNode(3),
+			wantNode:      CNode(10),
+			wantTransform: C3,
+			wantOk:        true,
 		},
 		{
-			name:    "four",
-			n:       CNode(4),
-			want:    nil,
-			want1:   C3,
-			wantErr: true,
+			name:          "four",
+			n:             CNode(4),
+			wantNode:      CNode(0),
+			wantTransform: C3,
+			wantOk:        false,
 		},
-
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1, err := tt.n.RightChild()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("CNode.RightChild() error = %v, wantErr %v", err, tt.wantErr)
+			gotNode, gotTransform, gotOk := tt.n.RightChild()
+			if gotOk != tt.wantOk {
+				t.Errorf("CNode.RightChild()want = %v, wantErr %v", gotOk, tt.wantOk)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("CNode.RightChild() got = %v, want %v", got, tt.want)
+			if !reflect.DeepEqual(gotNode, tt.wantNode) {
+				t.Errorf("CNode.RightChild() got = %v, want %v", gotNode, tt.wantNode)
 			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("CNode.RightChild() got1 = %v, want %v", got1, tt.want1)
+			if !reflect.DeepEqual(gotTransform, tt.wantTransform) {
+				t.Errorf("CNode.RightChild() got1 = %v, want %v", gotTransform, tt.wantTransform)
 			}
 		})
 	}
@@ -282,7 +285,16 @@ func TestCNode_Value(t *testing.T) {
 		n    CNode
 		want int
 	}{
-		// TODO: Add test cases.
+		{
+			name: "zero",
+			n:    0,
+			want: 0,
+		},
+		{
+			name: "13",
+			n:    13,
+			want: 13,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
