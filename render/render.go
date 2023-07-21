@@ -43,7 +43,7 @@ func (r ZTreeRenderer) RenderNode(dNode ztalloc.Node, gNode *cgraph.Node) {
 		fillc = "6"
 		fontc = "black"
 	case 52:
-		fillc = "7"
+		fillc = "8"
 		fontc = "black"
 	default: //not expected
 		gNode.SetShape(cgraph.DiamondShape)
@@ -58,21 +58,27 @@ func (r ZTreeRenderer) RenderNode(dNode ztalloc.Node, gNode *cgraph.Node) {
 
 func (r ZTreeRenderer) RenderEdge(t ztalloc.TransformName, gedge *cgraph.Edge) {
 	gedge.SetLabel(t)
-	gedge.SetColorScheme("piyg7")
 	// gedge.Set(cgraph.VeeArrow)
-
 	var fontc string
 	switch t {
 	case ztalloc.Z22:
-		fontc = "1"
+		gedge.SetColorScheme("purd9")
+		fontc = "6"
 	case ztalloc.Z2222:
-		fontc = "2"
+		gedge.SetColorScheme("purd9")
+		fontc = "8"
 	case ztalloc.Z32:
-		fontc = "3"
+		gedge.SetColorScheme("pubu9")
+		fontc = "6"
 	case ztalloc.Z322:
-		fontc = "4"
+		gedge.SetColorScheme("pubu9")
+		fontc = "7"
 	case ztalloc.Z3222:
-		fontc = "5"
+		gedge.SetColorScheme("pubu9")
+		fontc = "8"
+	case ztalloc.Z32222:
+		gedge.SetColorScheme("pubu9")
+		fontc = "9"
 	default: //not expected
 		gedge.SetColorScheme("")
 		fontc = "firebrick"
@@ -127,16 +133,10 @@ func (r CTreeRenderer) RenderEdge(t ztalloc.TransformName, gedge *cgraph.Edge) {
 
 	var fontc string
 	switch t {
-	case ztalloc.Z22:
+	case ztalloc.C2:
 		fontc = "1"
-	case ztalloc.Z2222:
+	case ztalloc.C3:
 		fontc = "2"
-	case ztalloc.Z32:
-		fontc = "3"
-	case ztalloc.Z322:
-		fontc = "4"
-	case ztalloc.Z3222:
-		fontc = "5"
 	default: //not expected
 		gedge.SetColorScheme("")
 		fontc = "firebrick"

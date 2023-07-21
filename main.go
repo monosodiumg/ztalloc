@@ -4,13 +4,22 @@ import (
 	// "ztalloc/core"
 
 	"bytes"
-	"fmt"
+	"flag"
+	"github.com/goccy/go-graphviz"
 	"log"
 	"ztalloc/render"
 	"ztalloc/ztalloc"
-
-	"github.com/goccy/go-graphviz"
 )
+
+var flagDepth *int
+var flagStart *int
+
+func init() {
+	// fs := flag.NewFlagSet("ExampleValue", flag.ExitOnError)
+	flagDepth = flag.Int("d", 2, "Depth of expansion")
+	flagStart = flag.Int("r", 4, "Root (start value)")
+	flag.Parse()
+}
 
 func main() {
 	// n.SetStyle()()
@@ -22,15 +31,18 @@ func main() {
 	// }
 	// 3. write to file directly
 	// renderGraphvizOld()
-	renderTreeGraph()
 
+	renderTreeGraph(*flagStart, *flagDepth)
 }
-func renderTreeGraph() {
-	g := graphviz.New()
-	t, err:= render.NewTreeGraph(g,render.ZTreeRenderer{}, ztalloc.ZNode(16),9)
-	if err!=nil { log.Fatalln("Unable to renderTreeGraph: %w", err)}
 
-	if err:=t.Draw(); err!=nil {
+func renderTreeGraph(start, depth int) {
+	g := graphviz.New()
+	t, err := render.NewTreeGraph(g, render.ZTreeRenderer{}, ztalloc.ZBinaryNode(start), depth)
+	if err != nil {
+		log.Fatalln("Unable to renderTreeGraph: %w", err)
+	}
+
+	if err := t.Draw(); err != nil {
 		log.Fatalln("Unable to renderTreeGraph: %w", err)
 	}
 
@@ -38,12 +50,11 @@ func renderTreeGraph() {
 	if err := g.Render(t.Graph(), "dot", &buf); err != nil {
 		log.Fatalln("Unable to renderTreeGraph: %w", err)
 	}
-	fmt.Println(buf.String())
+	//fmt.Println(buf.String())
 	if err := g.RenderFilename(t.Graph(), graphviz.PNG, "./graph.png"); err != nil {
 		log.Fatalln("Unable to renderTreeGraph: %w", err)
 	}
 }
-
 
 // func renderGraphvizOld() {
 // 	g := graphviz.New()
@@ -83,12 +94,12 @@ func renderTreeGraph() {
 
 // 	render.RenderEdge(ztalloc.Z22, gab)
 // 	var buf bytes.Buffer
-	// if err := g.Render(graph, "dot", &buf); err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Println(buf.String())
+// if err := g.Render(graph, "dot", &buf); err != nil {
+// 	log.Fatal(err)
+// }
+// fmt.Println(buf.String())
 
-	// if err := g.RenderFilename(graph, graphviz.PNG, "./graph.png"); err != nil {
-	// 	log.Fatal(err)
-	// }
+// if err := g.RenderFilename(graph, graphviz.PNG, "./graph.png"); err != nil {
+// 	log.Fatal(err)
+// }
 // }

@@ -70,10 +70,10 @@ func (g TreeGraph) drawChildren(dNode ztalloc.Node, gNode *cgraph.Node, depth in
 
 	if depth > 1 {
 		// iterate over children
-		if lerr == nil && lgNode!= nil {
+		if lerr == nil && lgNode != nil {
 			lerr = g.drawChildren(ldNode, lgNode, depth-1)
 		}
-		if rerr == nil && rgNode!= nil{
+		if rerr == nil && rgNode != nil {
 			rerr = g.drawChildren(rdNode, rgNode, depth-1)
 		}
 	}
