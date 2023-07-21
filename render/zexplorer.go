@@ -2,6 +2,7 @@ package render
 
 import (
 	"fmt"
+	"math"
 	"ztalloc/ztalloc"
 
 	"github.com/goccy/go-graphviz"
@@ -31,6 +32,13 @@ func NewTreeGraph(gv *graphviz.Graphviz, renderer TreeRenderer, start ztalloc.No
 	if err != nil {
 		return TreeGraph{}, fmt.Errorf("Error creating TreeGraph: %w", err)
 	}
+	// graph.SetRankSeparator(5)
+	//size := math.Pow(1.0, 1.0)
+	size := math.Pow(2, float64(depth+1))/float64(depth)
+	graph.SetSize(2*size,size)
+	 
+	  graph.SetNodeSeparator(40)
+	graph.SetRatio(cgraph.FillRatio)
 	return TreeGraph{
 		start:    start,
 		renderer: renderer,

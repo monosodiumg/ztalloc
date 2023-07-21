@@ -24,6 +24,7 @@ func (r ZTreeRenderer) RenderNode(dNode ztalloc.Node, gNode *cgraph.Node) {
 	gNode.SetColorScheme("oranges9")
 	gNode.SetStyle(cgraph.FilledNodeStyle)
 	gNode.SetShape(cgraph.OvalShape)
+	gNode.SetPenWidth(0)
 
 	var fillc, fontc string
 	switch dNode.Value() % 54 {

@@ -1,9 +1,6 @@
 package main
 
 import (
-	// "ztalloc/core"
-
-	"bytes"
 	"flag"
 	"github.com/goccy/go-graphviz"
 	"log"
@@ -37,6 +34,8 @@ func main() {
 
 func renderTreeGraph(start, depth int) {
 	g := graphviz.New()
+	g.SetLayout(graphviz.TWOPI)
+	
 	t, err := render.NewTreeGraph(g, render.ZTreeRenderer{}, ztalloc.ZBinaryNode(start), depth)
 	if err != nil {
 		log.Fatalln("Unable to renderTreeGraph: %w", err)
@@ -46,12 +45,12 @@ func renderTreeGraph(start, depth int) {
 		log.Fatalln("Unable to renderTreeGraph: %w", err)
 	}
 
-	var buf bytes.Buffer
-	if err := g.Render(t.Graph(), "dot", &buf); err != nil {
-		log.Fatalln("Unable to renderTreeGraph: %w", err)
-	}
+	// var buf bytes.Buffer
+	// if err := g.Render(t.Graph(), "png", &buf); err != nil {
+	// 	log.Fatalln("Unable to renderTreeGraph: %w", err)
+	// }
 	//fmt.Println(buf.String())
-	if err := g.RenderFilename(t.Graph(), graphviz.PNG, "./graph.png"); err != nil {
+	if err := g.RenderFilename(t.Graph(), graphviz.SVG, "./graph.svg"); err != nil {
 		log.Fatalln("Unable to renderTreeGraph: %w", err)
 	}
 }
