@@ -2,47 +2,37 @@ package main
 
 import (
 	"flag"
-	"github.com/goccy/go-graphviz"
-	"log"
+	"fmt"
 	"ztalloc/render"
 	"ztalloc/ztalloc"
+	"github.com/goccy/go-graphviz"
 )
 
-var flagDepth *int
-var flagStart *int
+var flagRadius *int
+var flagOrigin *int
 
 func init() {
-	// fs := flag.NewFlagSet("ExampleValue", flag.ExitOnError)
-	flagDepth = flag.Int("d", 2, "Depth of expansion")
-	flagStart = flag.Int("r", 4, "Root (start value)")
+	flagOrigin = flag.Int("o", 16, "Root (start value)")
+	flagRadius = flag.Int("r", 5, "Radius to explore ")
 	flag.Parse()
 }
 
 func main() {
-	// n.SetStyle()()
-	// n.SetStyle()()
-	// e.SetLabel(ztalloc.E22)
-	// 	image, err := g.RenderImage(graph)
-	// if err != nil {
-	//   log.Fatal(err)
-	// }
-	// 3. write to file directly
-	// renderGraphvizOld()
-
-	renderTreeGraph(*flagStart, *flagDepth)
+	_ = renderTreeGraph(*flagOrigin, *flagRadius)
 }
 
-func renderTreeGraph(start, depth int) {
+func renderTreeGraph(origin, radius int) error {
 	g := graphviz.New()
 	g.SetLayout(graphviz.TWOPI)
-	
-	t, err := render.NewTreeGraph(g, render.ZTreeRenderer{}, ztalloc.ZBinaryNode(start), depth)
+	visitor, closer, err := render.Z54Renderer(g, nil, radius)
 	if err != nil {
-		log.Fatalln("Unable to renderTreeGraph: %w", err)
+		return err
 	}
-
-	if err := t.Draw(); err != nil {
-		log.Fatalln("Unable to renderTreeGraph: %w", err)
+	defer closer.Close()
+	traverser := render.NewTraverser(ztalloc.ZBinaryNode(origin), radius)
+	err = traverser.Traverse(visitor)
+	if err != nil {
+		return err
 	}
 
 	// var buf bytes.Buffer
@@ -50,55 +40,8 @@ func renderTreeGraph(start, depth int) {
 	// 	log.Fatalln("Unable to renderTreeGraph: %w", err)
 	// }
 	//fmt.Println(buf.String())
-	if err := g.RenderFilename(t.Graph(), graphviz.SVG, "./graph.svg"); err != nil {
-		log.Fatalln("Unable to renderTreeGraph: %w", err)
+	if err := g.RenderFilename(visitor.Graph(), graphviz.SVG, fmt.Sprintf("./graphs/z54-orig%d-rad%d.svg",origin,radius)); err != nil {
+		fmt.Printf("Unable to renderTreeGraph: %v", err)
 	}
+	return nil
 }
-
-// func renderGraphvizOld() {
-// 	g := graphviz.New()
-// 	graph, err := g.Graph(graphviz.StrictDirected)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer func() {
-// 		if err := graph.Close(); err != nil {
-// 			log.Fatal(err)
-// 		}
-// 		g.Close()
-// 	}()
-// 	graph.SetStyle(cgraph.RoundedGraphStyle)
-
-// 	ga, err := graph.CreateNode("a")
-// 	ga.N
-
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	za, _ := ztalloc.Get(5400000000004)
-// 	render.RenderNode(za, ga)
-
-// 	gb, err := graph.CreateNode("b")
-
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	zb, _ := ztalloc.Get(58)
-// 	render.RenderNode(zb, gb)
-
-// 	gab, err := graph.CreateEdge("e", ga, gb)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	render.RenderEdge(ztalloc.Z22, gab)
-// 	var buf bytes.Buffer
-// if err := g.Render(graph, "dot", &buf); err != nil {
-// 	log.Fatal(err)
-// }
-// fmt.Println(buf.String())
-
-// if err := g.RenderFilename(graph, graphviz.PNG, "./graph.png"); err != nil {
-// 	log.Fatal(err)
-// }
-// }

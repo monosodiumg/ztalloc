@@ -1,63 +1,102 @@
 package render_test
 
 import (
-	"github.com/goccy/go-graphviz"
-	"reflect"
 	"testing"
 	"ztalloc/render"
 	"ztalloc/ztalloc"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-func TestNewTreeGraph(t *testing.T) {
-	type args struct {
-		gv       *graphviz.Graphviz
-		renderer render.TreeRenderer
-		start    ztalloc.Node
-		depth    int
+type (
+	NodeVisit struct {
+		Node   int
+		Edge   string
+		Radius int
 	}
-	tests := []struct {
-		name    string
-		args    args
-		want    render.TreeGraph
-		wantErr bool
-	}{
-		// TODO: Add test cases.
+	NodeVisits struct {
+		Visited []NodeVisit
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := render.NewTreeGraph(tt.args.gv, tt.args.renderer, tt.args.start, tt.args.depth)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("NewTreeGraph() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewTreeGraph() = %v, want %v", got, tt.want)
-			}
-		})
+
+	// visitImpl struct {
+	// 	visit func(node int, edge string, radius int) (render.Visitor, error)
+	// }
+)
+
+
+// func (vi visitImpl) Visit(node int, edge string, radius int) (render.Visitor, error) {
+// 	visitor, err := vi.Visit(node, edge, radius)
+// 	return visitImpl{visit: visitor.Visit}, err
+// }
+
+func (v *NodeVisits) Visit(node int, edge string, radius int) (render.Visitor, error) {
+	if v.Visited == nil {
+		v.Visited = make([]NodeVisit, 0)
 	}
+	v.Visited = append(v.Visited, NodeVisit{
+		Node:   node,
+		Edge:   edge,
+		Radius: radius,
+	})
+	return v, nil
 }
-func TestTreeGraph_Draw_ZBinary(t *testing.T) {
-	tests := []struct {
-		name     string
-		start    ztalloc.Node
-		depth    int
-		renderer render.ZTreeRenderer
-		wantErr  bool
-	}{
-		{
-			name:     "sixteen",
-			start:    ztalloc.ZBinaryNode(16),
-			depth:    4,
-			renderer: render.ZTreeRenderer{},
-			wantErr:  false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tr, _ := render.NewTreeGraph(graphviz.New(), tt.renderer, tt.start, tt.depth)
-			if err := tr.Draw(); (err != nil) != tt.wantErr {
-				t.Errorf("TreeGraph.Draw() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
+
+func nodeVisitLess(a, b NodeVisit) bool { return a.Node < b.Node }
+
+func TestNewTraverser(t *testing.T) {
+	t.Run("working Traverser", func(t *testing.T) {
+		wantVisits := NodeVisits{
+			Visited: []NodeVisit{
+				{
+					Node:   2,
+					Edge:   "",
+					Radius: 0,
+				},
+			},
+		}
+		got := render.NewTraverser(ztalloc.ZNode(2), 0)
+		v := NodeVisits{}
+		err := got.Traverse(&v)
+
+		if !cmp.Equal(v.Visited, wantVisits.Visited, cmpopts.SortSlices(nodeVisitLess)) {
+			t.Errorf("NewTraverser() failed Traverse with simple Visitor, gotVisit %v, wantVisit %v", v.Visited[0].Node, wantVisits.Visited[0].Node)
+		}
+		if err != nil {
+			t.Errorf("NewTraverser() failed Traverse with simple Visitor, got Err %v", err)
+		}
+	})
 }
+
+// func Test_traverser_Traverse(t *testing.T) {
+// 	type fields struct {
+// 		origin ztalloc.Node
+// 		radius int
+// 	}
+// 	tests := []struct {
+// 		name    string
+// 		fields  fields
+// 		visitor render.Visitor
+// 		wantErr bool
+// 	}{
+// 		{
+// 			name: "Zero radius",
+// 			fields: fields{
+// 				origin: ztalloc.CNode(13),
+// 				radius: 0,
+// 			},
+// 			visitor: make(nodeVisitSlice, 10),
+// 			wantErr: false,
+// 		},
+// 		//TODO: Add test cases.
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			tr := render.NewTraverser(tt.fields.origin, tt.fields.radius)
+
+// 			if err := tr.Traverse(tt.visitor); (err != nil) != tt.wantErr {
+// 				t.Errorf("traverser.Traverse() error = %v, wantErr %v", err, tt.wantErr)
+// 			}
+// 		})
+// 	}
+// }
