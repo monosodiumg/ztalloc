@@ -1,72 +1,47 @@
 package main
 
 import (
-	"bytes"
+	"flag"
 	"fmt"
-	"log"
-
-	"ztalloc/core"
 	"ztalloc/render"
-
+	"ztalloc/ztalloc"
 	"github.com/goccy/go-graphviz"
-	"github.com/goccy/go-graphviz/cgraph"
 )
 
-func main() {
-	zrender()
+var flagRadius *int
+var flagOrigin *int
+
+func init() {
+	flagOrigin = flag.Int("o", 16, "Root (start value)")
+	flagRadius = flag.Int("r", 5, "Radius to explore ")
+	flag.Parse()
 }
 
-func zrender() {
+func main() {
+	_ = renderTreeGraph(*flagOrigin, *flagRadius)
+}
+
+func renderTreeGraph(origin, radius int) error {
 	g := graphviz.New()
-	graph, err := g.Graph(graphviz.StrictDirected)
+	g.SetLayout(graphviz.TWOPI)
+	visitor, closer, err := render.Z54Renderer(g, nil, radius)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	defer func() {
-		if err := graph.Close(); err != nil {
-			log.Fatal(err)
-		}
-		g.Close()
-	}()
-	graph.SetStyle(cgraph.RoundedGraphStyle)
-
-	ga, err := graph.CreateNode("a")
-	// n.SetStyle()()
+	defer closer.Close()
+	traverser := render.NewTraverser(ztalloc.ZBinaryNode(origin), radius)
+	err = traverser.Traverse(visitor)
 	if err != nil {
-		log.Fatal(err)
-	}
-	za, _ := core.Get(5400000000004)
-	render.RenderNode(za, ga)
-
-	gb, err := graph.CreateNode("b")
-	// n.SetStyle()()
-	if err != nil {
-		log.Fatal(err)
-	}
-	zb, _ := core.Get(58)
-	render.RenderNode(zb, gb)
-
-	gab, err := graph.CreateEdge("e", ga, gb)
-	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	// e.SetLabel(core.E22)
-	render.RenderEdge(core.E22, gab)
-	var buf bytes.Buffer
-	if err := g.Render(graph, "dot", &buf); err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(buf.String())
-
-	// 	image, err := g.RenderImage(graph)
-	// if err != nil {
-	//   log.Fatal(err)
+	// var buf bytes.Buffer
+	// if err := g.Render(t.Graph(), "png", &buf); err != nil {
+	// 	log.Fatalln("Unable to renderTreeGraph: %w", err)
 	// }
-
-	// 3. write to file directly
-	if err := g.RenderFilename(graph, graphviz.PNG, "./graph.png"); err != nil {
-		log.Fatal(err)
+	//fmt.Println(buf.String())
+	if err := g.RenderFilename(visitor.Graph(), graphviz.SVG, fmt.Sprintf("./graphs/z54-orig%d-rad%d.svg",origin,radius)); err != nil {
+		fmt.Printf("Unable to renderTreeGraph: %v", err)
 	}
-
+	return nil
 }
